@@ -22,6 +22,7 @@ public class LogController {
     @Autowired
     private LogService logService;
 
+    // Método para crear un log
     @PostMapping
     public ResponseEntity<?> createLog(@RequestBody LogDTO logDTO, HttpServletRequest request) {
         try {
@@ -44,6 +45,7 @@ public class LogController {
         }
     }
 
+    // Método para obtener los logs con filtros
     @GetMapping
     public ResponseEntity<?> getLogs(
             @RequestParam(required = false) String application,
@@ -74,7 +76,7 @@ public class LogController {
             ApiError apiError = new ApiError(
                     HttpStatus.NOT_FOUND.value(),
                     HttpStatus.NOT_FOUND.getReasonPhrase(),
-                    "Logs no encontrados",
+                    "No se encontraron logs con los filtros especificados",
                     request.getRequestURI()
             );
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
@@ -89,4 +91,58 @@ public class LogController {
         }
     }
 
+    // Método para eliminar un log por su ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteLogById(@PathVariable Long id, HttpServletRequest request) {
+        try {
+            logService.deleteLogById(id);
+            ApiSuccess apiSuccess = new ApiSuccess(
+                    HttpStatus.OK.value(),
+                    HttpStatus.OK.getReasonPhrase(),
+                    "Log eliminado con éxito",
+                    request.getRequestURI()
+            );
+            return ResponseEntity.ok(apiSuccess);
+        } catch (NoSuchElementException e) {
+            ApiError apiError = new ApiError(
+                    HttpStatus.NOT_FOUND.value(),
+                    HttpStatus.NOT_FOUND.getReasonPhrase(),
+                    "Log no encontrado",
+                    request.getRequestURI()
+            );
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+        } catch (Exception e) {
+            ApiError apiError = new ApiError(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                    "Error al eliminar el log",
+                    request.getRequestURI()
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
+        }
+    }
+
+    // Método para eliminar todos los logs
+    @DeleteMapping("/all")
+    public ResponseEntity<?> deleteAllLogs(HttpServletRequest request) {
+        try {
+            logService.deleteAllLogs();
+            ApiSuccess apiSuccess = new ApiSuccess(
+                    HttpStatus.OK.value(),
+                    HttpStatus.OK.getReasonPhrase(),
+                    "Todos los logs fueron eliminados con éxito",
+                    request.getRequestURI()
+            );
+            return ResponseEntity.ok(apiSuccess);
+        } catch (Exception e) {
+            ApiError apiError = new ApiError(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                    "Error al eliminar todos los logs",
+                    request.getRequestURI()
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
+        }
+    }
 }
+

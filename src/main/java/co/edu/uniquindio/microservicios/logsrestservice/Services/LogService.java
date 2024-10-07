@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 
 @Service
 public class LogService {
@@ -38,16 +39,35 @@ public class LogService {
         }
 
         PageRequest pageRequest = PageRequest.of(page, size);
+        Page<Log> logs;
 
+        // Filtrar según los parámetros provistos
         if (application != null && logType != null) {
-            return logRepository.findByApplicationAndLogTypeAndTimestampBetween(application, logType, startDate, endDate, pageRequest);
+            logs = logRepository.findByApplicationAndLogTypeAndTimestampBetween(application, logType, startDate, endDate, pageRequest);
         } else if (application != null) {
-            return logRepository.findByApplicationAndTimestampBetween(application, startDate, endDate, pageRequest);
+            logs = logRepository.findByApplicationAndTimestampBetween(application, startDate, endDate, pageRequest);
         } else if (logType != null) {
-            return logRepository.findByLogTypeAndTimestampBetween(logType, startDate, endDate, pageRequest);
+            logs = logRepository.findByLogTypeAndTimestampBetween(logType, startDate, endDate, pageRequest);
         } else {
-            return logRepository.findByTimestampBetween(startDate, endDate, pageRequest);
+            logs = logRepository.findByTimestampBetween(startDate, endDate, pageRequest);
         }
+
+        // Si no se encuentran registros, lanzar una excepción
+        if (logs.isEmpty()) {
+            throw new NoSuchElementException("No se encontraron logs con los filtros especificados");
+        }
+
+        return logs;
+    }
+
+    public void deleteLogById(Long id) {
+        Log log = logRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Log no encontrado"));
+        logRepository.delete(log);
+    }
+
+    public void deleteAllLogs() {
+        logRepository.deleteAll();
     }
 
 }
