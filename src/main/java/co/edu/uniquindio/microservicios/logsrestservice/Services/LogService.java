@@ -70,4 +70,7 @@ public class LogService {
         logRepository.deleteAll();
     }
 
+    public Log findByDescription(String description){
+        return(logRepository.findByDescription(description));
+    }
 }

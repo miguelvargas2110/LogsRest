@@ -144,5 +144,27 @@ public class LogController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
         }
     }
+
+    @GetMapping("logByDescription")
+    public ResponseEntity<?> findByDescription(@RequestParam(value = "description", required = false) String description, HttpServletRequest request) {
+        try {
+            Log log = logService.findByDescription(description);
+            ApiSuccess apiSuccess = new ApiSuccess(
+                    HttpStatus.OK.value(),
+                    HttpStatus.OK.getReasonPhrase(),
+                    "Log encontrado, con la descripción: " + log.getDescription(),
+                    request.getRequestURI()
+            );
+            return ResponseEntity.ok().body(apiSuccess);
+        } catch (Exception e) {
+            ApiError apiError = new ApiError(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                    "Log no encontrado",
+                    request.getRequestURI()
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
+        }
+    }
 }
 

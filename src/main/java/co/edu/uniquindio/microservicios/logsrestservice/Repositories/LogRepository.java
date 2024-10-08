@@ -37,4 +37,6 @@ public interface LogRepository extends JpaRepository<Log, Long> {
             LocalDateTime endDate,
             Pageable pageable
     );
+
+    Log findByDescription(String description);
 }
